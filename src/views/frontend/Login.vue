@@ -124,6 +124,8 @@
 <script>
 import useValidate from "@vuelidate/core";
 import { required, email, minLength, helpers } from "@vuelidate/validators";
+import http from '../../services/AuthService';
+// import http from '@/services/AuthService'
 
 export default {
   name: "Login",
@@ -140,9 +142,28 @@ export default {
     submitForm() {
       this.v$.$validate();
       if (!this.v$.$error) {
-        // alert("Form Validate Succes");
+       http.post('login',
+          {
+            "email": this.email,
+            "password": this.password
+          }
+        ).then(response => {
+          console.log(response.data)
+          //1.เก็บข้อมูล user ลง localstorage
+          localStorage.setItem('user', JSON.stringify(response.data))
+          //2.เมื่อ Login ผ่านให้ส่งไปหน้า Dartboard
+          this.$router.push('backend')
+
+       }).catch(error => {
+        if (error.response) {
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+
+        }
+       })
       } else {
-        // alert("Form validate fail!");
+        
       }
     },
   },
